@@ -1,211 +1,197 @@
-import { WhatsApp } from "@mui/icons-material";
-import { Box, Container, Grid, Typography, Button, useTheme } from "@mui/material";
-import { useWhatsApp } from "../hooks/useWhatsapp";
-import { motion } from "framer-motion";
+import { Box, Typography, Button, Container, styled } from "@mui/material";
+import { useEffect, useState } from "react";
 
-// Animations
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      when: "beforeChildren",
-      staggerChildren: 0,
-      delayChildren: 0
-    }
-  }
-};
+const HeroContainer = styled(Box)(() => ({
+  position: "relative",
+  height: "100vh",
+  display: "flex",
+  alignItems: "center",
+  overflow: "hidden",
+}));
 
-const slideFromRight = {
-  hidden: { opacity: 0, x: 100 },
-  show: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut"
-    }
-  }
-};
+const BackgroundImage = styled(Box)<{ active: boolean }>(({ active }) => ({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  filter: "blur(5px)",
+  transform: "scale(1.02)",
+  opacity: active ? 1 : 0,
+  transition: "opacity 1s ease-in-out",
+  zIndex: 0,
+}));
+const Overlay = styled(Box)(() => ({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  backgroundColor: "rgba(0, 0, 0, 0.4)",
+  zIndex: 1,
+}));
 
-const slideFromBottom = {
-  hidden: { opacity: 0, y: 50 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut"
-    }
-  }
-};
+const HeroContent = styled(Container)(({ theme }) => ({
+  position: "relative",
+  zIndex: 2,
+  color: theme.palette.common.white,
+  textAlign: "left",
+  padding: theme.spacing(4),
+  maxWidth: "800px",
+  marginLeft: "10%",
+  marginTop: "60px",
+  [theme.breakpoints.down("md")]: {
+    marginLeft: "0",
+    textAlign: "center",
+  },
+}));
 
-const slideFromLeft = {
-  hidden: { opacity: 0, x: -50 },
-  show: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut"
+const HeroButton = styled(Button)(({ theme }) => ({
+  marginTop: theme.spacing(4),
+  padding: theme.spacing(1.5, 4),
+  fontSize: "1.1rem",
+  fontWeight: "bold",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    transform: "translateY(-3px)",
+    boxShadow: `0 4px 12px ${theme.palette.secondary.main}`,
+  },
+}));
+
+const slides = [
+  {
+    id: 1,
+    backgroundImage:
+      "url(https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80)",
+    title: "A Excelência em Cuidados Masculinos",
+    subtitle:
+      "Sua barbearia na palma da mão: controle total de agendamentos e serviços.",
+    description:
+      "Na Barberia, cada corte é uma arte — e por trás dela, precisa haver organização. Pensando nos barbeiros que levam o ofício a sério, criamos uma plataforma completa para gerenciar agendamentos, clientes e serviços com eficiência e praticidade. Seu talento merece um sistema à altura.",
+  },
+  {
+    id: 2,
+    backgroundImage:
+      "url(https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80)",
+    title: "Gestão Completa para sua Barbearia",
+    subtitle:
+      "Tudo o que você precisa para administrar seu negócio com excelência.",
+    description:
+      "De agendamentos a relatórios financeiros, nossa plataforma oferece todas as ferramentas para você focar no que realmente importa: proporcionar a melhor experiência para seus clientes.",
+  },
+  {
+    id: 3,
+    backgroundImage:
+      "url(https://images.unsplash.com/photo-1520338661084-680395057c93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80)",
+    title: "Tecnologia a Serviço da Beleza Masculina",
+    subtitle: "Inovação e tradição trabalhando juntas para o seu sucesso.",
+    description:
+      "Combinamos tecnologia de ponta com o conhecimento tradicional de barbearia para criar a ferramenta definitiva para profissionais que buscam excelência no atendimento e na gestão do seu espaço.",
+  },
+];
+
+const smoothScroll = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const headerHeight = 80; // Ajuste conforme a altura do seu header
+      const yOffset = -headerHeight - 122; // Offset adicional de 20px
+      const y =
+        element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
     }
-  }
-};
+  };
 
 export const HeroSection = () => {
-  const { onClick } = useWhatsApp();
-  const theme = useTheme();
-  
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+        setFade(true);
+      }, 500);
+    }, 7000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <Box
-      id="home"
-      sx={{
-        minHeight: { xs: 'auto'},
-        pt: { xs: 8, sm: 0 },
-        pb: { xs: 8, sm: 0 },
-        backgroundImage: "url(/images/bg8.jpeg)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: { xs: 'scroll', md: 'fixed' },
-        backgroundColor: "rgba(1, 6, 25, 0.7)",
-        backgroundBlendMode: "overlay",
-        display: 'flex',
-        alignItems: 'center'
-      }}
-    >
-      <Container maxWidth="lg" sx={{ py: { xs: 4, sm: 8, md: 12 } }}>
-        <Grid 
-          container 
-          spacing={{ xs: 4, md: 6 }} 
-          alignItems="center" 
-          justifyContent="center"
-          component={motion.div}
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+    <HeroContainer>
+      {slides.map((slide, index) => (
+        <BackgroundImage
+          key={slide.id}
+          active={index === currentSlide && fade}
+          sx={{ backgroundImage: slide.backgroundImage }}
+        />
+      ))}
+
+      <Overlay />
+
+      <HeroContent>
+        <Typography
+          variant="h1"
+          gutterBottom
+          sx={{
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+            fontWeight: "bold",
+            lineHeight: 1.2,
+            opacity: fade ? 1 : 0,
+            transform: fade ? "translateY(0)" : "translateY(20px)",
+            transition: "all 0.8s ease",
+          }}
         >
-          <Grid item xs={12} md={6} order={{ xs: 2, md: 1 }}>
-            <motion.div variants={slideFromBottom}>
-              <Typography
-                variant="h2"
-                sx={{
-                  fontWeight: 700,
-                  mb: { xs: 2, sm: 3 },
-                  px: { xs: 1, sm: 0 },
-                  fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3.5rem' },
-                  lineHeight: { xs: 1.3, sm: 1.2 },
-                  textShadow: "0 2px 10px rgba(0,0,0,0.3)",
-                }}
-              >
-                Transforme suas ideias em realidade digital
-              </Typography>
-            </motion.div>
-            
-            <motion.div variants={slideFromLeft}>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: { xs: 3, sm: 4 },
-                  opacity: 0.9,
-                  lineHeight: 1.6,
-                  fontSize: { xs: '1rem', sm: '1.25rem' }
-                }}
-              >
-                Desenvolvimento de sites sob medida, rápidos e com alta
-                performance para alavancar seu negócio. Juntos, criaremos uma
-                presença online que impressiona, converte e cresce. 🚀
-              </Typography>
-            </motion.div>
-            
-            <motion.div variants={slideFromBottom}>
-              <Typography
-                variant="h5"
-                sx={{
-                  mb: { xs: 3, sm: 4 },
-                  opacity: 0.9,
-                  lineHeight: 1.6,
-                  fontSize: { xs: '1.1rem', sm: '1.5rem' }
-                }}
-              >
-                Pronto para começar?
-              </Typography>
-            </motion.div>
-            
-            <motion.div variants={slideFromLeft}>
-              <Box sx={{ 
-                display: "flex", 
-                gap: { xs: 2, sm: 3 }, 
-                mb: { xs: 3, sm: 4 },
-                flexDirection: { xs: 'column', sm: 'row' }
-              }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  startIcon={<WhatsApp sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />}
-                  onClick={() => onClick()}
-                  sx={{
-                    px: { xs: 3, sm: 4 },
-                    py: { xs: 1, sm: 1.5 },
-                    fontWeight: 600,
-                    fontSize: { xs: '0.9375rem', sm: '1rem' },
-                    '&:hover': {
-                      transform: 'translateY(-2px)'
-                    }
-                  }}
-                >
-                  Mande uma mensagem
-                </Button>
-              </Box>
-            </motion.div>
-            
-            <motion.div variants={slideFromBottom}>
-              <Box sx={{ 
-                display: "flex", 
-                alignItems: "center", 
-                gap: 2,
-                flexWrap: 'wrap'
-              }}>
-                <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  Todos os nossos clientes estão satisfeitos!
-                </Typography>
-              </Box>
-            </motion.div>
-          </Grid>
-          
-          <Grid item xs={12} md={6} order={{ xs: 1, md: 2 }}>
-            <motion.div variants={slideFromRight}>
-              <Box
-                sx={{
-                  backgroundColor: "#010619a4",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid #9336be",
-                  borderRadius: 3,
-                  p: { xs: 2, sm: 3 },
-                  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: { xs: 'none', md: 'translateY(-5px)' },
-                    boxShadow: theme.shadows[10]
-                  }
-                }}
-              >
-                <img
-                  src="/images/bg11.jpeg"
-                  alt="Dashboard Preview"
-                  style={{
-                    width: "100%",
-                    height: 'auto',
-                    borderRadius: 8,
-                    border: "1px solid rgba(255, 255, 255, 0.4)",
-                  }}
-                />
-              </Box>
-            </motion.div>
-          </Grid>
-        </Grid>
-      </Container>
-    </Box>
+          {slides[currentSlide].title}
+        </Typography>
+
+        <Typography
+          variant="h5"
+          component="h2"
+          gutterBottom
+          sx={{
+            color: (theme) => theme.palette.secondary.dark,
+            textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
+            mb: 3,
+            fontWeight: "500",
+            opacity: fade ? 1 : 0,
+            transform: fade ? "translateY(0)" : "translateY(20px)",
+            transition: "all 0.8s ease 0.2s",
+          }}
+        >
+          {slides[currentSlide].subtitle}
+        </Typography>
+
+        <Typography
+          variant="body1"
+          sx={{
+            fontSize: "1.2rem",
+            textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
+            maxWidth: "600px",
+            opacity: fade ? 1 : 0,
+            transform: fade ? "translateY(0)" : "translateY(20px)",
+            transition: "all 0.8s ease 0.4s",
+          }}
+        >
+          {slides[currentSlide].description}
+        </Typography>
+
+        <HeroButton
+          variant="contained"
+          color="secondary"
+          size="large"
+          onClick={() => smoothScroll("servicepresentation")}
+          sx={{
+            opacity: fade ? 1 : 0,
+            transform: fade ? "translateY(0)" : "translateY(20px)",
+            transition: "all 0.8s ease 0.6s",
+          }}
+        >
+          Vamos começar!
+        </HeroButton>
+      </HeroContent>
+    </HeroContainer>
   );
 };

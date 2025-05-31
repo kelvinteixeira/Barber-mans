@@ -1,26 +1,31 @@
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
-// Cria o tema base com paleta de cores personalizada
-const darkBlueTheme = createTheme({
+const baseTheme = createTheme();
+
+const barberiaTheme = createTheme({
   palette: {
     primary: {
-      main: '#9336be',
-      contrastText: '#ffffff'
+      light: '#555555',        // Cinza mais claro
+      main: '#333333',        // Cinza escuro (cor principal)
+      dark: '#222222',        // Quase preto
+      contrastText: '#D7B76C' // Texto dourado
     },
     secondary: {
-      main: '#64ffda',
-      contrastText: '#0a192f'
+      light: '#FFF5D1',       // Dourado muito claro
+      main: '#D7B76C',        // Dourado principal
+      dark: '#D4AF37',        // Dourado mais escuro
+      contrastText: '#333333' // Texto cinza escuro
     },
     background: {
-      default: '#0a192f',
-      paper: '#020c1b'
+      default: '#222222',     // Fundo preto
+      paper: '#333333'
     },
     text: {
-      primary: '#e6f1ff',
-      secondary: '#8892b0'
+      primary: '#FFFFFF',    // Texto branco
+      secondary: '#D7B76C',   // Texto dourado
+      disabled: '#777777'    // Texto cinza
     }
-  },
-  breakpoints: {
+  },  breakpoints: {
     values: {
       xs: 0,
       sm: 600,
@@ -32,35 +37,39 @@ const darkBlueTheme = createTheme({
   typography: {
     fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: '2.5rem',
+      fontSize: '4.5rem',
       fontWeight: 700,
       lineHeight: 1.2,
-      [createTheme().breakpoints.up('md')]: {
+      color: '#D7B76C', // Dourado para títulos
+      [baseTheme.breakpoints.up('md')]: {
         fontSize: '3.5rem',
       },
-      [createTheme().breakpoints.up('lg')]: {
+      [baseTheme.breakpoints.up('lg')]: {
         fontSize: '4rem',
       },
     },
     h2: {
-      fontSize: '2rem',
+      fontSize: '3rem',
       fontWeight: 600,
-      [createTheme().breakpoints.up('md')]: {
+      color: '#D7B76C',
+      [baseTheme.breakpoints.up('md')]: {
         fontSize: '2.5rem',
       },
-      [createTheme().breakpoints.up('lg')]: {
+      [baseTheme.breakpoints.up('lg')]: {
         fontSize: '3rem',
       },
     },
     h3: {
-      fontSize: '1.75rem',
-      [createTheme().breakpoints.up('md')]: {
+      fontSize: '2.5rem',
+      color: '#D7B76C',
+      [baseTheme.breakpoints.up('md')]: {
         fontSize: '2rem',
       },
     },
     body1: {
       fontSize: '1rem',
-      [createTheme().breakpoints.up('md')]: {
+      color: '#FFFFFF',
+      [baseTheme.breakpoints.up('md')]: {
         fontSize: '1.1rem',
       },
     },
@@ -77,14 +86,43 @@ const darkBlueTheme = createTheme({
           borderRadius: '8px',
           padding: '8px 22px',
           fontSize: '1rem',
-          [createTheme().breakpoints.up('md')]: {
+          transition: 'all 0.3s ease',
+          [baseTheme.breakpoints.up('md')]: {
             padding: '10px 24px',
             fontSize: '1.05rem',
           },
         },
         containedPrimary: {
+          backgroundColor: '#333333',
+          color: '#D7B76C',
           '&:hover': {
-            backgroundColor: '#ae00ff'
+            backgroundColor: '#222222',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 4px 8px rgba(255, 215, 0, 0.2)'
+          }
+        },
+        containedSecondary: {
+          backgroundColor: '#D7B76C',
+          color: '#333333',
+          '&:hover': {
+            backgroundColor: '#D4AF37',
+            transform: 'translateY(-2px)'
+          }
+        },
+        outlinedPrimary: {
+          borderColor: '#D7B76C',
+          color: '#D7B76C',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            borderColor: '#D4AF37'
+          }
+        },
+        outlinedSecondary: {
+          borderColor: '#555555',
+          color: '#FFFFFF',
+          '&:hover': {
+            backgroundColor: 'rgba(85, 85, 85, 0.1)',
+            borderColor: '#777777'
           }
         }
       }
@@ -93,13 +131,25 @@ const darkBlueTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
+          backgroundColor: '#333333',
+          color: '#FFFFFF',
+          border: '1px solid #D7B76C',
           padding: '16px',
-          [createTheme().breakpoints.up('sm')]: {
+          [baseTheme.breakpoints.up('sm')]: {
             padding: '20px',
           },
-          [createTheme().breakpoints.up('md')]: {
+          [baseTheme.breakpoints.up('md')]: {
             padding: '24px',
           },
+        }
+      }
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#222222',
+          borderBottom: '1px solid #D7B76C',
+          boxShadow: 'none'
         }
       }
     },
@@ -108,7 +158,7 @@ const darkBlueTheme = createTheme({
         root: {
           paddingLeft: '16px',
           paddingRight: '16px',
-          [createTheme().breakpoints.up('sm')]: {
+          [baseTheme.breakpoints.up('sm')]: {
             paddingLeft: '24px',
             paddingRight: '24px',
           },
@@ -121,9 +171,20 @@ const darkBlueTheme = createTheme({
           wordBreak: 'break-word',
         }
       }
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: '#D7B76C',
+          textDecoration: 'none',
+          '&:hover': {
+            color: '#D4AF37',
+            textDecoration: 'underline'
+          }
+        }
+      }
     }
   }
 });
 
-// Aplica responsiveFontSizes ao tema
-export const theme = responsiveFontSizes(darkBlueTheme);
+export const theme = responsiveFontSizes(barberiaTheme);

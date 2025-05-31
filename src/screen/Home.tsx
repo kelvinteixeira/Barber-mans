@@ -1,15 +1,12 @@
 import { Box } from "@mui/material";
-import { Footer } from "../components/Footer";
-import { Navbar } from "../components/Navbar";
 import { HeroSection } from "../components/HeroSection";
-import { Features } from "../components/Features";
-import { HowItWorks } from "../components/HowItWorks";
-import { Customers } from "../components/Customers";
-import { FAQ } from "../components/FAQ";
-import { Contact } from "../components/Contact";
-import { WhatsAppFloatButton } from "../components/Whastapp";
-import { AboutMe } from "../components/AboutMe";
-import { MyProjects } from "../components/MyProjects";
+import { AboutSection } from "../components/AboutSection";
+import { FeaturesSection } from "../components/FeaturesSection";
+import { Footer } from "../components/Footer";
+import { PricingPlans } from "../components/PricingPlans";
+import { FAQSection } from "../components/FAQ";
+import { Header } from "../components/Header";
+import { ServicePresentation } from "../components/ServicePresentation";
 
 export const HomePage = () => {
   return (
@@ -19,17 +16,14 @@ export const HomePage = () => {
         color: "white",
       }}
     >
-      <Navbar />
+      <Header />
       <HeroSection />
-      <Features />
-      <HowItWorks />
-      <AboutMe />
-      <MyProjects />
-      <Customers />
-      <FAQ />
-      <Contact />
+      <AboutSection />
+      <FeaturesSection />
+      <PricingPlans />
+      <FAQSection />
+      <ServicePresentation />
       <Footer />
-      <WhatsAppFloatButton />
     </Box>
   );
 };
