@@ -1,0 +1,468 @@
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Container,
+  InputAdornment,
+  IconButton,
+  Divider,
+  FormControl,
+  FormHelperText,
+  useMediaQuery,
+  Grid,
+} from "@mui/material";
+import { Visibility, VisibilityOff, Google } from "@mui/icons-material";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { styled } from "@mui/system";
+import { theme } from "../theme/Theme";
+import { FixedBackButton } from "../components/FixedBackButton";
+
+const RegisterContainer = styled(Box)(() => ({
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  position: "relative", // Adicionado para conter os elementos absolutos
+  overflow: "hidden", // Impede que a imagem vaze
+}));
+
+const BackgroundImage = styled(Box)(() => ({
+  backgroundImage: "url(/images/wallpaper-register-customer.jpg)",
+  position: "absolute",
+  objectFit: "contain",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  filter: "blur(5px)",
+  zIndex: 0,
+}));
+
+const Overlay = styled(Box)(() => ({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  backgroundColor: "rgba(0, 0, 0, 0.4)",
+  zIndex: 1,
+}));
+
+const FormCard = styled(Box)(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(4),
+  boxShadow:
+    "0px 3px 5px -1px rgba(0,0,0,0.2),0px 5px 8px 0px rgba(0,0,0,0.14),0px 1px 14px 0px rgba(0,0,0,0.12)",
+  width: "100%",
+  maxWidth: "800px", // Aumentado para acomodar duas colunas
+  zIndex: 2,
+   margin: theme.spacing(2),
+  border: "1px solid rgba(73, 69, 69, 0.3)",
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: "inherit",
+    backdropFilter: "blur(10px)",
+    zIndex: -1,
+  },
+}));
+
+export const RegisterCustomer = () => {
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [formData, setFormData] = useState({
+    customerName: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState({
+    customerName: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleChange = (e: { target: { name: unknown; value: string } }) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name as string]: value,
+    }));
+
+    // Validação em tempo real
+    if (name === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      setErrors((prev) => ({
+        ...prev,
+        email: !emailRegex.test(value) ? "Email inválido" : "",
+      }));
+    }
+
+    if (name === "password") {
+      const passwordRegex =
+        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      setErrors((prev) => ({
+        ...prev,
+        password: !passwordRegex.test(value)
+          ? "Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, um número e um caractere especial"
+          : "",
+      }));
+
+      // Validação de confirmação de senha
+      if (formData.confirmPassword) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword:
+            value !== formData.confirmPassword ? "As senhas não coincidem" : "",
+        }));
+      }
+    }
+
+    if (name === "confirmPassword") {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword:
+          value !== formData.password ? "As senhas não coincidem" : "",
+      }));
+    }
+
+    if (name === "phone") {
+      // Aplicar máscara de telefone
+      const cleaned = value.replace(/\D/g, "");
+      const match = cleaned.match(/^(\d{0,2})(\d{0,5})(\d{0,4})$/);
+      if (match) {
+        const formatted = [
+          match[1] ? `(${match[1]}` : "",
+          match[2] ? `) ${match[2]}` : "",
+          match[3] ? `-${match[3]}` : "",
+        ].join("");
+        setFormData((prev) => ({
+          ...prev,
+          phone: formatted,
+        }));
+      }
+    }
+  };
+
+  const handleSubmit = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+
+    // Validação final antes de enviar
+    let hasErrors = false;
+    const newErrors = { ...errors };
+
+    if (!formData.customerName.trim()) {
+      newErrors.customerName = "Nome completo é obrigatório";
+      hasErrors = true;
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email é obrigatório";
+      hasErrors = true;
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Telefone é obrigatório";
+      hasErrors = true;
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Senha é obrigatória";
+      hasErrors = true;
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Confirmação de senha é obrigatória";
+      hasErrors = true;
+    }
+
+    setErrors(newErrors);
+
+    if (!hasErrors) {
+      // Lógica para enviar os dados do formulário
+      console.log("Formulário enviado:", formData);
+    }
+  };
+
+  return (
+    <RegisterContainer>
+      <BackgroundImage />
+      <FixedBackButton />
+      <Overlay />
+
+      <Container maxWidth="lg"  sx={{ 
+          position: "relative", // Garante que o Container seja o referencial
+          zIndex: 2, // Garante que fique acima do overlay
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}>
+        <FormCard>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 3,
+            }}
+          >
+            <img
+              src="/images/barber-logo.png"
+              alt="Barbearia Logo"
+              style={{
+                width: isMobile ? "100px" : "150px",
+                cursor: "pointer",
+                mixBlendMode: "multiply",
+              }}
+            />
+            <Typography
+              variant="h3"
+              component="h1"
+              align="center"
+              sx={{ mb: 2, color: theme.palette.secondary.main }}
+            >
+              Criar conta
+            </Typography>
+
+            <Grid container spacing={3}>
+              {/* Coluna 1 - Dados Pessoais */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  color="secondary"
+                  label="Nome completo"
+                  name="customerName"
+                  value={formData.customerName}
+                  onChange={handleChange}
+                  error={!!errors.customerName}
+                  helperText={errors.customerName}
+                  fullWidth
+                  required
+                  sx={{
+                    mb: 3,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "secondary.main",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "secondary.dark",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "secondary.main",
+                      },
+                    },
+                  }}
+                />
+
+                <TextField
+                  color="secondary"
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={!!errors.email}
+                  helperText={errors.email}
+                  fullWidth
+                  required
+                  sx={{
+                    mb: 3,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "secondary.main",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "secondary.dark",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "secondary.main",
+                      },
+                    },
+                  }}
+                />
+
+                <TextField
+                  color="secondary"
+                  label="Telefone"
+                  name="phone"
+                  sx={{
+                    mb: 3,
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "secondary.main",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "secondary.dark",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "secondary.main",
+                      },
+                    },
+                  }}
+                  value={formData.phone}
+                  onChange={handleChange}
+                  error={!!errors.phone}
+                  helperText={errors.phone || "Formato: (99) 99999-9999"}
+                  fullWidth
+                  required
+                  inputProps={{ maxLength: 15 }}
+                />
+              </Grid>
+
+              {/* Coluna 2 - Dados de Acesso */}
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth sx={{ mb: 3 }}>
+                  <TextField
+                    color="secondary"
+                    label="Senha"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={!!errors.password}
+                    fullWidth
+                    required
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "secondary.main",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "secondary.dark",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "secondary.main",
+                        },
+                      },
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            sx={{ color: theme.palette.secondary.main }}
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  {errors.password && (
+                    <FormHelperText error>{errors.password}</FormHelperText>
+                  )}
+                </FormControl>
+
+                <TextField
+                  label="Repita a Senha"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  error={!!errors.confirmPassword}
+                  helperText={errors.confirmPassword}
+                  fullWidth
+                  required
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "secondary.main",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "secondary.dark",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "secondary.main",
+                      },
+                    },
+                  }}
+                  color="secondary"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          sx={{ color: theme.palette.secondary.main }}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          edge="end"
+                        >
+                          {showConfirmPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+            </Grid>
+
+            {/* Botões - Full width abaixo das colunas */}
+            <Button
+              type="submit"
+              variant="contained"
+              color="secondary"
+              size="large"
+              fullWidth
+              sx={{ mt: 2, py: 1.5 }}
+            >
+              Cadastrar
+            </Button>
+
+            <Divider
+              sx={(theme) => ({
+                my: 2,
+                width: "100%",
+                "&::before, &::after": {
+                  borderColor: theme.palette.secondary.main,
+                },
+              })}
+            >
+              ou
+            </Divider>
+
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              fullWidth
+              startIcon={<Google />}
+              sx={{ py: 1.5 }}
+            >
+              Cadastrar com Google
+            </Button>
+
+            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+              Já possui uma conta?{" "}
+              <Link
+                to="/login-customer"
+                style={{ color: theme.palette.secondary.main }}
+              >
+                Faça login
+              </Link>
+            </Typography>
+          </Box>
+        </FormCard>
+      </Container>
+    </RegisterContainer>
+  );
+};
