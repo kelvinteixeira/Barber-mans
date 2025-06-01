@@ -6,6 +6,8 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Typography,
+  Box,
 } from "@mui/material";
 import {
   CalendarToday as CalendarIcon,
@@ -15,7 +17,6 @@ import {
   CardGiftcard as PackagesIcon,
   Notifications as RemindersIcon,
   History as HistoryIcon,
-  PointOfSale as CashIcon,
   AccountBalanceWallet as CashHistoryIcon,
   Inventory as InventoryIcon,
   TrendingUp as CashFlowIcon,
@@ -23,11 +24,10 @@ import {
   Settings as SettingsIcon,
   School as TutorialsIcon,
   MenuBook as CoursesIcon,
+  MonetizationOn as ServicesValueIcon,
 } from "@mui/icons-material";
 
-const drawerWidth = 300;
-
-
+const drawerWidth = 280;
 
 interface ManagementSidebarProps {
   open: boolean;
@@ -35,22 +35,37 @@ interface ManagementSidebarProps {
 }
 
 export const ManagementSidebar = ({ open }: ManagementSidebarProps) => {
-  const menuItems = [
-    { text: "Agenda", icon: <CalendarIcon /> },
-    { text: "Clientes", icon: <PeopleIcon /> },
-    { text: "Profissionais", icon: <WorkIcon /> },
-    { text: "Serviços", icon: <ServicesIcon /> },
-    { text: "Pacotes", icon: <PackagesIcon /> },
-    { text: "Lembretes", icon: <RemindersIcon /> },
-    { text: "Histórico de Atendimentos", icon: <HistoryIcon /> },
-    { divider: true },
-    { text: "Caixa", icon: <CashIcon /> },
-    { text: "Histórico de Caixa", icon: <CashHistoryIcon /> },
-    { text: "Estoque", icon: <InventoryIcon /> },
-    { text: "Fluxo de Caixa", icon: <CashFlowIcon /> },
-    { text: "Relatórios", icon: <ReportsIcon /> },
-    { divider: true },
-    { text: "Configurações", icon: <SettingsIcon /> },
+  const categories = [
+    {
+      title: "Atendimento",
+      items: [
+        { text: "Agendamento", icon: <CalendarIcon /> },
+        { text: "Clientes", icon: <PeopleIcon /> },
+        { text: "Profissionais", icon: <WorkIcon /> },
+        { text: "Serviços", icon: <ServicesIcon /> },
+        { text: "Pacotes", icon: <PackagesIcon /> },
+        { text: "Lembretes", icon: <RemindersIcon /> },
+        { text: "Histórico de Atendimentos", icon: <HistoryIcon /> },
+      ],
+    },
+    {
+      title: "Financeiro",
+      items: [
+        { text: "Fluxo de Caixa", icon: <CashFlowIcon /> },
+        { text: "Valores dos Serviços", icon: <ServicesValueIcon /> },
+        { text: "Histórico de Caixa", icon: <CashHistoryIcon /> },
+      ],
+    },
+    {
+      title: "Gestão",
+      items: [
+        { text: "Estoque", icon: <InventoryIcon /> },
+        { text: "Relatórios", icon: <ReportsIcon /> },
+      ],
+    },
+  ];
+
+  const bottomItems = [
     { text: "Tutoriais", icon: <TutorialsIcon /> },
     { text: "Cursos", icon: <CoursesIcon /> },
   ];
@@ -63,30 +78,100 @@ export const ManagementSidebar = ({ open }: ManagementSidebarProps) => {
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
         },
       }}
       variant="persistent"
       anchor="left"
       open={open}
     >
-      <Divider />
+      <Box>
+        {categories.map((category) => (
+          <Box key={category.title}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                px: 3,
+                py: 1,
+                mt: 2,
+                color: "#D7B76C",
+                fontWeight: "bold",
+                fontSize: "0.75rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              {category.title}
+            </Typography>
+            <Divider sx={{ borderColor: "rgba(215, 183, 108, 0.3)", mb: 1 }} />
+            <List>
+              {category.items.map((item) => (
+                <ListItem key={item.text} disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon sx={{ color: "#D7B76C", minWidth: "36px" }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.text} 
+                      primaryTypographyProps={{ 
+                        fontSize: "0.875rem",
+                        fontWeight: "medium"
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        ))}
 
-      <List>
-        {menuItems.map((item, index) =>
-          item.divider ? (
-            <Divider key={`divider-${index}`} sx={{ my: 1 }} />
-          ) : (
+        <Divider sx={{ 
+          borderColor: "#D7B76C", 
+          my: 2,
+          opacity: 0.5 
+        }} />
+
+        <List>
+          {bottomItems.map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton>
-                <ListItemIcon sx={{ color: "#D7B76C" }}>
+                <ListItemIcon sx={{ color: "#D7B76C", minWidth: "36px" }}>
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText primary={item.text} />
+                <ListItemText 
+                  primary={item.text} 
+                  primaryTypographyProps={{ 
+                    fontSize: "0.875rem",
+                    fontWeight: "medium"
+                  }} 
+                />
               </ListItemButton>
             </ListItem>
-          )
-        )}
-      </List>
+          ))}
+        </List>
+      </Box>
+
+      <Box>
+        <Divider sx={{ borderColor: "rgba(215, 183, 108, 0.3)" }} />
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon sx={{ color: "#D7B76C", minWidth: "36px" }}>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText 
+                primary="Configurações" 
+                primaryTypographyProps={{ 
+                  fontSize: "0.875rem",
+                  fontWeight: "medium"
+                }} 
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Box>
     </Drawer>
   );
 };
